@@ -28,6 +28,7 @@ struct Trapframe {
 static struct Command commands[] = {
 	{ "help", "Display this list of commands", mon_help },
 	{ "kerninfo", "Display information about the kernel", mon_kerninfo },
+	{ "backtrace", "Display information about the function stack", mon_backtrace },
 };
 
 /***** Implementations of basic kernel monitor commands *****/
