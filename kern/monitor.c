@@ -21,6 +21,10 @@ struct Command {
 	int (*func)(int argc, char** argv, struct Trapframe* tf);
 };
 
+struct Trapframe {
+	uint32_t ebp;
+};
+
 static struct Command commands[] = {
 	{ "help", "Display this list of commands", mon_help },
 	{ "kerninfo", "Display information about the kernel", mon_kerninfo },
@@ -57,7 +61,44 @@ mon_kerninfo(int argc, char **argv, struct Trapframe *tf)
 int
 mon_backtrace(int argc, char **argv, struct Trapframe *tf)
 {
-	// Your code here.
+	uint32_t ebp;
+
+	if (tf == NULL) {
+		// current trapframe
+		cprintf("Stack backtrace: \n");
+		ebp = read_ebp();
+	} else {
+		ebp = tf->ebp;
+	}
+
+	uint32_t eip = *((uint32_t *)ebp + 1);
+	uint32_t arglist[5]; 
+
+	for (int i = 0; i < 5; i++) {
+		arglist[i] = *((uint32_t *)ebp + (i + 2));
+	}
+
+	struct Trapframe new_tf;
+	new_tf.ebp = (uint32_t)(*((uint32_t *)ebp));
+
+	// print current stack trace
+	cprintf(" ebp %08x  eip %08x  args %08x %08x %08x %08x %08x\n", (void *)ebp, (void *)eip, 
+		(void *)arglist[0], (void *)arglist[1], (void *)arglist[2], (void *)arglist[3], (void *)arglist[4]);
+
+	struct Eipdebuginfo info;
+	uintptr_t addr;
+	if (debuginfo_eip(eip, &info) == -1) {
+		cprintf("Error happened when reading symbol table\n");
+	} else {
+		cprintf("%s:%d: ", info.eip_file, info.eip_line);
+		cprintf("%.*s", info.eip_fn_namelen, info.eip_fn_name);
+		cprintf("+%d\n", eip - (uint32_t)info.eip_fn_addr);
+	}
+
+	// recursive calling
+	if (new_tf.ebp != 0)
+		mon_backtrace(0, 0, &new_tf);
+
 	return 0;
 }
 
