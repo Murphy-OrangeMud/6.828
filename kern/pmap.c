@@ -437,18 +437,6 @@ boot_map_region(pde_t *pgdir, uintptr_t va, size_t size, physaddr_t pa, int perm
 		vaddr += PGSIZE;
 	} 
 }
-/*
-static void
-boot_map_region(pde_t *pgdir, uintptr_t va, size_t size, physaddr_t pa, int perm)
-{
-	// Fill this function in
-	for(size_t i = 0; i < size; i += PGSIZE){
-		tlb_invalidate(pgdir, (void *)va + i);
-		pte_t* pte = pgdir_walk(pgdir, (const void *)va + i, 1);
-		*pte = (pa + i) | PTE_P | perm;
-	}
-}
-*/
 
 //
 // Map the physical page 'pp' at virtual address 'va'.
