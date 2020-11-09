@@ -72,6 +72,7 @@ page2pa(struct PageInfo *pp)
 	return (pp - pages) << PGSHIFT;
 }
 
+// physical page address -> page index
 static inline struct PageInfo*
 pa2page(physaddr_t pa)
 {
@@ -80,6 +81,7 @@ pa2page(physaddr_t pa)
 	return &pages[PGNUM(pa)];
 }
 
+// page index -> kernel virtual address
 static inline void*
 page2kva(struct PageInfo *pp)
 {
