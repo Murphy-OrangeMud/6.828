@@ -30,6 +30,41 @@ sched_yield(void)
 
 	// LAB 4: Your code here.
 
+	// for debug
+	//cprintf("entering sched_yield\n");
+	
+	int curenv_idx, end_idx;
+	if (!thiscpu->cpu_env) {
+		curenv_idx = 0;
+		end_idx = -1;
+	}
+	else {
+		curenv_idx = ENVX(ENVX((thiscpu->cpu_env)->env_id) + 1);
+		end_idx = ENVX((thiscpu->cpu_env)->env_id);
+	}
+	
+	for (; ; curenv_idx = ENVX(curenv_idx + 1)) {
+		if (end_idx != -1 && curenv_idx == end_idx)
+			break;
+		if (end_idx == -1)
+			end_idx = 0;
+		if (envs[curenv_idx].env_status == ENV_RUNNABLE) {
+			// for debug
+			//cprintf("find the first runnable environment: %d\n", curenv_idx);
+
+			idle = &envs[curenv_idx];
+			env_run(idle);
+		}
+	}
+	
+	if (envs[curenv_idx].env_status == ENV_RUNNING) {
+		// for debug
+		//cprintf("continue to run the current environment: %d\n", curenv_idx);
+
+		idle = &envs[curenv_idx];
+		env_run(idle);
+	}
+
 	// sched_halt never returns
 	sched_halt();
 }

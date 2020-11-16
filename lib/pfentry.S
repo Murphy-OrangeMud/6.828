@@ -8,7 +8,7 @@
 // in pgfault.c).
 //
 // When a page fault actually occurs, the kernel switches our ESP to
-// point to the user exception stack if we're not already on the user
+// point to the user exception stack if we are not already on the user
 // exception stack, and then it pushes a UTrapframe onto our user
 // exception stack:
 //
@@ -45,18 +45,18 @@ _pgfault_upcall:
 	// Explanation:
 	//   We must prepare the trap-time stack for our eventual return to
 	//   re-execute the instruction that faulted.
-	//   Unfortunately, we can't return directly from the exception stack:
-	//   We can't call 'jmp', since that requires that we load the address
+	//   Unfortunately, we cannot return directly from the exception stack:
+	//   We cannot call 'jmp', since that requires that we load the address
 	//   into a register, and all registers must have their trap-time
 	//   values after the return.
-	//   We can't call 'ret' from the exception stack either, since if we
+	//   We cannot call 'ret' from the exception stack either, since if we
 	//   did, %esp would have the wrong value.
 	//   So instead, we push the trap-time %eip onto the *trap-time* stack!
-	//   Below we'll switch to that stack and call 'ret', which will
+	//   Below we will switch to that stack and call 'ret', which will
 	//   restore %eip to its pre-fault value.
 	//
 	//   In the case of a recursive fault on the exception stack,
-	//   note that the word we're pushing now will fit in the
+	//   note that the word we are pushing now will fit in the
 	//   blank word that the kernel reserved for us.
 	//
 	// Throughout the remaining code, think carefully about what
