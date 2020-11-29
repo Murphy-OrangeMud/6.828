@@ -114,9 +114,6 @@ lapic_init(void)
 int
 cpunum(void)
 {
-	// for debug
-	// cprintf("entering cpunum\n");
-
 	if (lapic)
 		return lapic[ID] >> 24;
 	return 0;

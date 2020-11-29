@@ -67,6 +67,23 @@ TRAPHANDLER_NOEC(machinecheck, 18);
 TRAPHANDLER_NOEC(simderror, 19);
 TRAPHANDLER_NOEC(systemcall, 0x30);
 
+TRAPHANDLER_NOEC(hardware_handler_0, 32);
+TRAPHANDLER_NOEC(hardware_handler_1, 33);
+TRAPHANDLER_NOEC(hardware_handler_2, 34);
+TRAPHANDLER_NOEC(hardware_handler_3, 35);
+TRAPHANDLER_NOEC(hardware_handler_4, 36);
+TRAPHANDLER_NOEC(hardware_handler_5, 37);
+TRAPHANDLER_NOEC(hardware_handler_6, 38);
+TRAPHANDLER_NOEC(hardware_handler_7, 39);
+TRAPHANDLER_NOEC(hardware_handler_8, 40);
+TRAPHANDLER_NOEC(hardware_handler_9, 41);
+TRAPHANDLER_NOEC(hardware_handler_10, 42);
+TRAPHANDLER_NOEC(hardware_handler_11, 43);
+TRAPHANDLER_NOEC(hardware_handler_12, 44);
+TRAPHANDLER_NOEC(hardware_handler_13, 45);
+TRAPHANDLER_NOEC(hardware_handler_14, 46);
+TRAPHANDLER_NOEC(hardware_handler_15, 47);
+
 /*
  * Lab 3: Your code here for _alltraps
  */

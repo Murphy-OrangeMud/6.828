@@ -50,6 +50,23 @@ extern void machinecheck();
 extern void simderror();
 extern void systemcall();
 
+extern void hardware_handler_0();
+extern void hardware_handler_1();
+extern void hardware_handler_2();
+extern void hardware_handler_3();
+extern void hardware_handler_4();
+extern void hardware_handler_5();
+extern void hardware_handler_6();
+extern void hardware_handler_7();
+extern void hardware_handler_8();
+extern void hardware_handler_9();
+extern void hardware_handler_10();
+extern void hardware_handler_11();
+extern void hardware_handler_12();
+extern void hardware_handler_13();
+extern void hardware_handler_14();
+extern void hardware_handler_15();
+
 static const char *trapname(int trapno)
 {
 	static const char * const excnames[] = {
@@ -91,25 +108,42 @@ trap_init(void)
 	extern struct Segdesc gdt[];
 
 	// LAB 3: Your code here.
-	SETGATE(idt[0], 1, GD_KT, &divide, 0)
-	SETGATE(idt[1], 1, GD_KT, &debug, 3);
-	SETGATE(idt[2], 1, GD_KT, &nmi, 0);
-	SETGATE(idt[3], 1, GD_KT, &breakp, 3);
-	SETGATE(idt[4], 1, GD_KT, &overflow, 0);
-	SETGATE(idt[5], 1, GD_KT, &boundcheck, 0);
-	SETGATE(idt[6], 1, GD_KT, &illegalop, 0);
-	SETGATE(idt[7], 1, GD_KT, &device, 0);
-	SETGATE(idt[8], 1, GD_KT, &doublefault, 0);
-	SETGATE(idt[10], 1, GD_KT, &tss, 0);
-	SETGATE(idt[11], 1, GD_KT, &segnotpre, 0);
-	SETGATE(idt[12], 1, GD_KT, &stackexp, 0);
-	SETGATE(idt[13], 1, GD_KT, &genprotect, 0);
-	SETGATE(idt[14], 1, GD_KT, &pagefault, 3);
-	SETGATE(idt[16], 1, GD_KT, &floating, 0);
-	SETGATE(idt[17], 1, GD_KT, &aligncheck, 0);
-	SETGATE(idt[18], 1, GD_KT, &machinecheck, 0);
-	SETGATE(idt[19], 1, GD_KT, &simderror, 0);
-	SETGATE(idt[0x30], 1, GD_KT, &systemcall, 3);
+	SETGATE(idt[0], 0, GD_KT, &divide, 0)
+	SETGATE(idt[1], 0, GD_KT, &debug, 3);
+	SETGATE(idt[2], 0, GD_KT, &nmi, 0);
+	SETGATE(idt[3], 0, GD_KT, &breakp, 3);
+	SETGATE(idt[4], 0, GD_KT, &overflow, 0);
+	SETGATE(idt[5], 0, GD_KT, &boundcheck, 0);
+	SETGATE(idt[6], 0, GD_KT, &illegalop, 0);
+	SETGATE(idt[7], 0, GD_KT, &device, 0);
+	SETGATE(idt[8], 0, GD_KT, &doublefault, 0);
+	SETGATE(idt[10], 0, GD_KT, &tss, 0);
+	SETGATE(idt[11], 0, GD_KT, &segnotpre, 0);
+	SETGATE(idt[12], 0, GD_KT, &stackexp, 0);
+	SETGATE(idt[13], 0, GD_KT, &genprotect, 0);
+	SETGATE(idt[14], 0, GD_KT, &pagefault, 3);
+	SETGATE(idt[16], 0, GD_KT, &floating, 0);
+	SETGATE(idt[17], 0, GD_KT, &aligncheck, 0);
+	SETGATE(idt[18], 0, GD_KT, &machinecheck, 0);
+	SETGATE(idt[19], 0, GD_KT, &simderror, 0);
+	SETGATE(idt[0x30], 0, GD_KT, &systemcall, 3);
+
+	SETGATE(idt[IRQ_OFFSET + 0],0, GD_KT, &hardware_handler_0, 3);
+	SETGATE(idt[IRQ_OFFSET + 1],0, GD_KT, &hardware_handler_0, 3);
+	SETGATE(idt[IRQ_OFFSET + 2],0, GD_KT, &hardware_handler_2, 3);
+	SETGATE(idt[IRQ_OFFSET + 3],0, GD_KT, &hardware_handler_3, 3);
+	SETGATE(idt[IRQ_OFFSET + 4],0, GD_KT, &hardware_handler_4, 3);
+	SETGATE(idt[IRQ_OFFSET + 5],0, GD_KT, &hardware_handler_5, 3);
+	SETGATE(idt[IRQ_OFFSET + 6],0, GD_KT, &hardware_handler_6, 3);
+	SETGATE(idt[IRQ_OFFSET + 7],0, GD_KT, &hardware_handler_7, 3);
+	SETGATE(idt[IRQ_OFFSET + 8],0, GD_KT, &hardware_handler_8, 3);
+	SETGATE(idt[IRQ_OFFSET + 9],0, GD_KT, &hardware_handler_9, 3);
+	SETGATE(idt[IRQ_OFFSET + 10],0, GD_KT, &hardware_handler_10, 3);
+	SETGATE(idt[IRQ_OFFSET + 11],0, GD_KT, &hardware_handler_10, 3);
+	SETGATE(idt[IRQ_OFFSET + 12],0, GD_KT, &hardware_handler_12, 3);
+	SETGATE(idt[IRQ_OFFSET + 13],0, GD_KT, &hardware_handler_13, 3);
+	SETGATE(idt[IRQ_OFFSET + 14],0, GD_KT, &hardware_handler_14, 3);
+	SETGATE(idt[IRQ_OFFSET + 15],0, GD_KT, &hardware_handler_15, 3);
 
 	// Per-CPU setup 
 	trap_init_percpu();
@@ -227,12 +261,14 @@ trap_dispatch(struct Trapframe *tf)
 	// Handle clock interrupts. Don't forget to acknowledge the
 	// interrupt using lapic_eoi() before calling the scheduler!
 	// LAB 4: Your code here.
-	
-	// for debug
-	// cprintf("%d\n", tf->tf_trapno);
 
 	switch(tf->tf_trapno)
 	{
+		case IRQ_TIMER + IRQ_OFFSET: {
+			lapic_eoi();
+			sched_yield();
+			break;
+		}
 		case T_PGFLT: {
 			page_fault_handler(tf);
 			break;
