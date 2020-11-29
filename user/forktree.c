@@ -15,7 +15,13 @@ forkchild(const char *cur, char branch)
 		return;
 
 	snprintf(nxt, DEPTH+1, "%s%c", cur, branch);
+
+	// for debug
+	//cprintf("this is %04x ready to fork\n", sys_getenvid());
+
 	if (fork() == 0) {
+		// for debug
+		//cprintf("this is %04x ready to forktree and exit\n", sys_getenvid());
 		forktree(nxt);
 		exit();
 	}
@@ -34,5 +40,7 @@ void
 umain(int argc, char **argv)
 {
 	forktree("");
+	// for debug
+	//cprintf("this is %04x ready to exit\n", sys_getenvid());
 }
 

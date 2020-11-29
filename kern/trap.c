@@ -229,7 +229,7 @@ trap_dispatch(struct Trapframe *tf)
 	// LAB 4: Your code here.
 	
 	// for debug
-	cprintf("%d\n", tf->tf_trapno);
+	// cprintf("%d\n", tf->tf_trapno);
 
 	switch(tf->tf_trapno)
 	{
@@ -372,6 +372,50 @@ page_fault_handler(struct Trapframe *tf)
 
 	// LAB 4: Your code here.
 
+	if (curenv->env_pgfault_upcall) {
+		// for debug
+		// cprintf("user page fault handling...\n");
+		struct UTrapframe *utf;
+		user_mem_assert(curenv, curenv->env_pgfault_upcall, 1, PTE_P | PTE_U);
+		
+		if (curenv->env_tf.tf_esp >= UXSTACKTOP - PGSIZE && curenv->env_tf.tf_esp <= UXSTACKTOP - 1) {
+			utf = (struct UTrapframe *) (curenv->env_tf.tf_esp - 
+					(size_t)(sizeof(size_t)) - 
+					(size_t)(sizeof(struct UTrapframe)));
+			if (curenv->env_tf.tf_esp - (size_t)(sizeof(size_t)) - 
+				(size_t)(sizeof(struct UTrapframe)) < UXSTACKTOP - PGSIZE) {
+				cprintf("User Exception Stack Overflows\n");
+				goto fail;
+			}
+		}
+		else {
+			// 注意这里是32位的！！！
+			user_mem_assert(curenv, 
+							(void *) ((uintptr_t) UXSTACKTOP - 
+							(size_t) (sizeof(size_t)) - 
+							(size_t) (sizeof(struct UTrapframe))), 
+							sizeof(struct UTrapframe) + sizeof(size_t), 
+							PTE_P | PTE_U | PTE_W);
+			utf = (struct UTrapframe *) ((uintptr_t) UXSTACKTOP - 
+					(size_t) (sizeof(size_t)) - (size_t) (sizeof(struct UTrapframe)));
+		}
+		
+		utf->utf_eflags = curenv->env_tf.tf_eflags;
+		utf->utf_regs = curenv->env_tf.tf_regs;
+		utf->utf_fault_va = fault_va;
+		utf->utf_esp = curenv->env_tf.tf_esp;
+		utf->utf_eip = curenv->env_tf.tf_eip;
+		utf->utf_err = curenv->env_tf.tf_err;
+		
+		curenv->env_tf.tf_esp = (uintptr_t) utf;
+		curenv->env_tf.tf_eip = (uintptr_t) curenv->env_pgfault_upcall;
+
+		// for debug
+		// cprintf("preparing to run...\n");
+		env_run(curenv);
+	}
+
+fail:
 	// Destroy the environment that caused the fault.
 	cprintf("[%08x] user fault va %08x ip %08x\n",
 		curenv->env_id, fault_va, tf->tf_eip);

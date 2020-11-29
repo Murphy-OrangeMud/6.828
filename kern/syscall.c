@@ -188,6 +188,8 @@ sys_page_alloc(envid_t envid, void *va, int perm)
 
 	// LAB 4: Your code here.
 	struct PageInfo *p = page_alloc(ALLOC_ZERO);
+	if (!p)
+		return -E_NO_MEM;
 	struct Env *env;
 
 	int errcode = envid2env(envid, &env, 1);
@@ -374,6 +376,9 @@ syscall(uint32_t syscallno, uint32_t a1, uint32_t a2, uint32_t a3, uint32_t a4, 
 
 	// panic("syscall not implemented");
 
+	// for debug
+	// cprintf("syscall no: %d\n", syscallno);
+
 	switch (syscallno) {
 		case SYS_cputs: {
 			user_mem_assert(curenv, (void *) a1, a2 + 1, PTE_U);
@@ -410,6 +415,13 @@ syscall(uint32_t syscallno, uint32_t a1, uint32_t a2, uint32_t a3, uint32_t a4, 
 		}
 		case SYS_page_unmap: {
 			return sys_page_unmap((envid_t) a1, (void *) a2);
+		}
+		case SYS_ipc_recv: {
+			user_mem_assert(curenv, (void *) a1, PGSIZE, PTE_W);
+			return sys_ipc_recv((void *) a1);
+		}
+		case SYS_ipc_try_send: {
+			return sys_ipc_try_send((envid_t) a1, a2, (void *) a3, a4);
 		}
 		default:
 			return -E_INVAL;

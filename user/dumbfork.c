@@ -51,6 +51,7 @@ dumbfork(void)
 	// except that in the child, this "fake" call to sys_exofork()
 	// will return 0 instead of the envid of the child.
 	envid = sys_exofork();
+	cprintf("this is %04x, envid %04x\n", thisenv->env_id, envid);
 	if (envid < 0)
 		panic("sys_exofork: %e", envid);
 	if (envid == 0) {
@@ -59,6 +60,7 @@ dumbfork(void)
 		// is no longer valid (it refers to the parent!).
 		// Fix it and return 0.
 		thisenv = &envs[ENVX(sys_getenvid())];
+				// cprintf("thisenv: %04x\n", thisenv->env_id);
 		return 0;
 	}
 
