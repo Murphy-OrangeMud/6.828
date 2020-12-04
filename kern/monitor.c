@@ -31,6 +31,8 @@ static struct Command commands[] = {
 	{ "showmapping", "Display physical address mapping condition in virtual address [arg1, arg2]", mon_showmapping },
 	{ "setperm", "Change permission of the page containing address arg1 to arg2, report error if the page is unmapped", mon_setperm },
 	{ "dumpmem", "Dump the memory in range [arg1, arg2], arg3 = 1 for virtual address and arg3 = 0 for physical address", mon_dumpmem },
+	{ "stepi", "Used in breakpoint to step a single instruction", mon_stepi }, 
+	{ "continue", "Used in breakpoint to continue execution", mon_continue }
 };
 
 /***** Implementations of basic kernel monitor commands *****/
@@ -271,6 +273,32 @@ mon_dumpmem(int argc, char **argv, struct Trapframe *tf)
 	}
 
 	return 0;
+}
+
+int
+mon_stepi(int argc, char **argv, struct Trapframe *tf)
+{
+	if (tf == NULL) {
+		cprintf("No debugger running!\n");
+		return 0;
+	} 
+	else {
+		tf->tf_eflags |= (FL_TF);
+		return -1;
+	}
+}
+
+int
+mon_continue(int argc, char **argv, struct Trapframe *tf)
+{
+	if (tf == NULL) {
+		cprintf("No debugger running\n");
+		return 0;
+	}
+	else {
+		tf->tf_eflags &= (~FL_TF);
+		return -1;
+	}
 }
 
 /***** Kernel monitor command interpreter *****/
