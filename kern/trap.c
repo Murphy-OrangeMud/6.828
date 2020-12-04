@@ -84,25 +84,25 @@ trap_init(void)
 	extern struct Segdesc gdt[];
 
 	// LAB 3: Your code here.
-	SETGATE(idt[0], 0, GD_KT, &divide, 0)
-	SETGATE(idt[1], 1, GD_KT, &debug, 3);
-	SETGATE(idt[2], 0, GD_KT, &nmi, 0);
+	SETGATE(idt[0], 1, GD_KT, &divide, 0)
+	SETGATE(idt[1], 1, GD_KT, &debug, 0);
+	SETGATE(idt[2], 1, GD_KT, &nmi, 0);
 	SETGATE(idt[3], 1, GD_KT, &breakp, 3);
-	SETGATE(idt[4], 0, GD_KT, &overflow, 0);
-	SETGATE(idt[5], 0, GD_KT, &boundcheck, 0);
-	SETGATE(idt[6], 0, GD_KT, &illegalop, 0);
-	SETGATE(idt[7], 0, GD_KT, &device, 0);
-	SETGATE(idt[8], 0, GD_KT, &doublefault, 0);
-	SETGATE(idt[10], 0, GD_KT, &tss, 0);
-	SETGATE(idt[11], 0, GD_KT, &segnotpre, 0);
-	SETGATE(idt[12], 0, GD_KT, &stackexp, 0);
-	SETGATE(idt[13], 0, GD_KT, &genprotect, 0);
-	SETGATE(idt[14], 0, GD_KT, &pagefault, 3);
-	SETGATE(idt[16], 0, GD_KT, &floating, 0);
-	SETGATE(idt[17], 0, GD_KT, &aligncheck, 0);
-	SETGATE(idt[18], 0, GD_KT, &machinecheck, 0);
-	SETGATE(idt[19], 0, GD_KT, &simderror, 0);
-	SETGATE(idt[0x30], 0, GD_KT, &systemcall, 3);
+	SETGATE(idt[4], 1, GD_KT, &overflow, 0);
+	SETGATE(idt[5], 1, GD_KT, &boundcheck, 0);
+	SETGATE(idt[6], 1, GD_KT, &illegalop, 0);
+	SETGATE(idt[7], 1, GD_KT, &device, 0);
+	SETGATE(idt[8], 1, GD_KT, &doublefault, 0);
+	SETGATE(idt[10], 1, GD_KT, &tss, 0);
+	SETGATE(idt[11], 1, GD_KT, &segnotpre, 0);
+	SETGATE(idt[12], 1, GD_KT, &stackexp, 0);
+	SETGATE(idt[13], 1, GD_KT, &genprotect, 0);
+	SETGATE(idt[14], 1, GD_KT, &pagefault, 0);
+	SETGATE(idt[16], 1, GD_KT, &floating, 0);
+	SETGATE(idt[17], 1, GD_KT, &aligncheck, 0);
+	SETGATE(idt[18], 1, GD_KT, &machinecheck, 0);
+	SETGATE(idt[19], 1, GD_KT, &simderror, 0);
+	SETGATE(idt[0x30], 1, GD_KT, &systemcall, 3);
 
 	// Per-CPU setup 
 	trap_init_percpu();
@@ -120,7 +120,7 @@ trap_init_percpu(void)
 
 	// Initialize the TSS slot of the gdt.
 	gdt[GD_TSS0 >> 3] = SEG16(STS_T32A, (uint32_t) (&ts),
-					sizeof(struct Taskstate) - 0, 0);
+					sizeof(struct Taskstate) - 1, 0);
 	gdt[GD_TSS0 >> 3].sd_s = 0;
 
 	// Load the TSS selector (like other segment selectors, the
