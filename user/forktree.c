@@ -19,7 +19,7 @@ forkchild(const char *cur, char branch)
 	// for debug
 	//cprintf("this is %04x ready to fork\n", sys_getenvid());
 
-	if (fork() == 0) {
+	if (sfork() == 0) {
 		// for debug
 		//cprintf("this is %04x ready to forktree and exit\n", sys_getenvid());
 		forktree(nxt);
