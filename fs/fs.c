@@ -62,8 +62,23 @@ alloc_block(void)
 	// super->s_nblocks blocks in the disk altogether.
 
 	// LAB 5: Your code here.
-	panic("alloc_block not implemented");
-	return -E_NO_DISK;
+	uint32_t blockno = 0;
+	for (int i = 0; i < ((DISKSIZE / BLKSIZE) / 32); i++) {
+		if (bitmap[i]) {
+			for (int j = 0; j < 32; j++) {
+				if (bitmap[i] & (1 << j)) {
+					blockno = i * 32 + j;
+					bitmap[i] &= (~(1 << j));
+					flush_block(&bitmap[i]);
+					return blockno;
+				}
+			}
+		}
+	}
+	// panic("alloc_block not implemented");
+	if (blockno == 0)
+		return -E_NO_DISK;
+	return blockno;
 }
 
 // Validate the file system bitmap.
@@ -135,7 +150,30 @@ static int
 file_block_walk(struct File *f, uint32_t filebno, uint32_t **ppdiskbno, bool alloc)
 {
        // LAB 5: Your code here.
-       panic("file_block_walk not implemented");
+		if (filebno >= NDIRECT + NINDIRECT)
+			return -E_INVAL;
+		else if (filebno >= NDIRECT) {
+			// indirect block
+			if (f->f_indirect == 0) {
+				if (!alloc)
+					return -E_NOT_FOUND;
+				else {
+					int blockno = alloc_block();
+					//memset(diskaddr(blockno), 0, BLKSIZE);
+					if (blockno < 0)
+						return -E_NO_DISK;
+					flush_block(diskaddr(blockno));
+					f->f_indirect = blockno;
+				}
+			}
+			*ppdiskbno = (uint32_t *)diskaddr(f->f_indirect) + filebno - NDIRECT;
+		}
+		else {
+			// direct block
+			*ppdiskbno = &(f->f_direct[filebno]);
+		}
+		return 0;
+       // panic("file_block_walk not implemented");
 }
 
 // Set *blk to the address in memory where the filebno'th
@@ -150,7 +188,29 @@ int
 file_get_block(struct File *f, uint32_t filebno, char **blk)
 {
        // LAB 5: Your code here.
-       panic("file_get_block not implemented");
+		int r;
+		uint32_t *ppdiskbno;
+		if ((r = file_block_walk(f, filebno, &ppdiskbno, 1)) < 0) {
+			if (r == -E_NOT_FOUND) {
+				int blockno = alloc_block();
+				if (blockno < 0) 
+					return blockno;
+				*blk = diskaddr(*((uint32_t *)((uint32_t *)diskaddr(blockno) + filebno - NDIRECT)));
+				return 0;
+			}
+			return r;
+		}
+		else if ((*ppdiskbno) == 0) {
+			// direct block isn't allocated
+			int blockno = alloc_block();
+			if (blockno < 0)
+				return blockno;
+			*ppdiskbno = blockno;
+			flush_block(diskaddr(blockno));
+		}
+		*blk = diskaddr(*ppdiskbno);
+		return 0;
+       // panic("file_get_block not implemented");
 }
 
 // Try to find a file named "name" in dir.  If so, set *file to it.
